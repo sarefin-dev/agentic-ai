@@ -1,4 +1,4 @@
-# Educational demonstration of LangChain core concepts using local Ollama models.
+# Educational demonstration of LangChain core concepts using local Ollama models with init_chat_model.
 # Shows LCEL (LangChain Expression Language) patterns for building AI chains.
 # Prerequisites: Ollama server running on localhost:11434, llama3.2 model pulled.
 
@@ -24,7 +24,7 @@ CONCEPT: LangChain Expression Language (LCEL) - Building Composable AI Chains
 
 4. CALLING SEQUENCE:
    Step 1: Create PromptTemplate with placeholders like {question}
-   Step 2: Initialize LLM (ChatOllama in this case)
+   Step 2: Initialize LLM using init_chat_model with ollama provider
    Step 3: Initialize OutputParser to format the response
    Step 4: Compose chain using pipe operator: template | llm | parser
    Step 5: Invoke chain with dictionary containing the placeholder values
@@ -53,7 +53,7 @@ from dotenv import load_dotenv
 # Step 1: Import required LangChain components
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_ollama import ChatOllama
+from langchain.chat_models import init_chat_model
 from pydantic import BaseModel, Field
 from typing import List
 
@@ -80,11 +80,12 @@ def demo_basic_chain():
         """
     )
 
-    # Step 2: Initialize the Ollama LLM model
-    # ChatOllama connects to localhost:11434 by default (where Ollama server runs)
+    # Step 2: Initialize the Ollama LLM model using init_chat_model
+    # init_chat_model provides a unified interface across different model providers
+    # model_provider="ollama" specifies we're using Ollama
     # model="llama3.2" specifies which model to use
     # Make sure this model is pulled: ollama pull llama3.2
-    model = ChatOllama(model="llama3.2")
+    model = init_chat_model(model="llama3.2", model_provider="ollama")
 
     # Step 3: Initialize the output parser
     # StrOutputParser converts the LLM's response into a plain string
@@ -125,9 +126,9 @@ def demo_batch_chain():
         """
     )
 
-    # Step 2: Initialize the Ollama LLM model
+    # Step 2: Initialize the Ollama LLM model using init_chat_model
     # Same model configuration as the basic chain
-    model = ChatOllama(model="llama3.2")
+    model = init_chat_model(model="llama3.2", model_provider="ollama")
 
     # Step 3: Initialize the output parser (same as basic chain)
     output_parser = StrOutputParser()
@@ -193,8 +194,8 @@ def demo_schema_chain():
         """
     )
 
-    # Step 4: Initialize Ollama model
-    model = ChatOllama(model="llama3.2")
+    # Step 4: Initialize Ollama model using init_chat_model
+    model = init_chat_model(model="llama3.2", model_provider="ollama")
 
     # Step 5: Create the chain with schema-aware components
     # The chain now enforces structured output matching our Person model
@@ -250,8 +251,8 @@ def demo_marketing_tag_line_generator():
         """
     )
 
-    # Step 2: Initialize the Ollama model
-    model = ChatOllama(model="llama3.2")
+    # Step 2: Initialize the Ollama model using init_chat_model
+    model = init_chat_model(model="llama3.2", model_provider="ollama")
 
     # Step 3: Use StrOutputParser to get clean text output
     # We want raw strings, not JSON, for this creative task
