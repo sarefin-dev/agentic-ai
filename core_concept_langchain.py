@@ -163,6 +163,45 @@ def demo_schema_chain():
         print("   This typically means the model response format didn't match expected JSON.\n")
 
 
+def demo_minimax_test():
+    """
+    MINIMAX MODEL TEST DEMO - Quick Test with Minimax Model
+    =======================================================
+
+    Tests the minimax model locally via Ollama.
+    Make sure to pull the model first: ollama pull minimax
+
+    This demo tests if minimax is properly installed and responsive.
+    Flow: Question → Prompt → Minimax Model → String Parser → Result
+    """
+
+    try:
+        # Initialize minimax model from Ollama
+        minimax_model = init_chat_model(
+            model="minimax",
+            model_provider="ollama"
+        )
+
+        prompt_template = ChatPromptTemplate.from_template(
+            """
+            You are a helpful assistant. Answer this question concisely.
+            Question: {question}
+            """
+        )
+
+        output_parser = StrOutputParser()
+        chain = prompt_template | minimax_model | output_parser
+
+        print("Testing minimax model...\n")
+        result = chain.invoke({"question": "What is the difference between AI and machine learning?"})
+
+        print(f"Minimax Response: {result}\n")
+
+    except Exception as e:
+        print(f"⚠️  Error with minimax model: {type(e).__name__}: {e}\n")
+        print("   Make sure minimax is pulled: ollama pull minimax\n")
+
+
 def demo_streaming_chain():
     """
     STREAMING CHAIN DEMO - Real-time Output Streaming
@@ -300,7 +339,8 @@ def main():
         "3": ("Schema Chain Demo (Structured JSON Output)", demo_schema_chain),
         "4": ("Streaming Chain Demo (Real-time Output)", demo_streaming_chain),
         "5": ("Marketing Tagline Generator (Practical Use Case)", demo_marketing_tagline_generator),
-        "6": ("Run All Demos", None),
+        "6": ("Minimax Model Test (Ollama)", demo_minimax_test),
+        "7": ("Run All Demos", None),
     }
 
     while True:
@@ -312,17 +352,17 @@ def main():
         print("  [0] Exit")
         print("="*60)
 
-        choice = input("\nEnter your choice (0-6): ").strip()
+        choice = input("\nEnter your choice (0-7): ").strip()
 
         if choice == "0":
             print("\nGoodbye!")
             break
 
-        elif choice == "6":
+        elif choice == "7":
             print("\n" + "="*60)
             print("Running all demos...")
             print("="*60)
-            for key in ["1", "2", "3", "4", "5"]:
+            for key in ["1", "2", "3", "4", "5", "6"]:
                 name, func = demos[key]
                 print(f"\n[{key}] {name}:")
                 print("-" * 60)
@@ -334,7 +374,7 @@ def main():
             print("All demos completed!")
             print("="*60)
 
-        elif choice in ["1", "2", "3", "4", "5"]:
+        elif choice in ["1", "2", "3", "4", "5", "6"]:
             name, func = demos[choice]
             print(f"\n[{choice}] {name}:")
             print("-" * 60)
@@ -344,7 +384,7 @@ def main():
                 print(f"Error: {e}\n")
 
         else:
-            print("❌ Invalid choice. Please enter 0-6.")
+            print("❌ Invalid choice. Please enter 0-7.")
 
 
 if __name__ == "__main__":
