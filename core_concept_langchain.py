@@ -163,22 +163,20 @@ def demo_schema_chain():
         print("   This typically means the model response format didn't match expected JSON.\n")
 
 
-def demo_minimax_test():
+def demo_gemma4_test():
     """
-    MINIMAX MODEL TEST DEMO - Quick Test with Minimax Model
-    =======================================================
+    GEMMA4 MODEL TEST DEMO - Quick Test with Gemma4 via Ollama
+    ===========================================================
 
-    Tests the minimax model locally via Ollama.
-    Make sure to pull the model first: ollama pull minimax
+    Tests the gemma4 model locally via Ollama.
+    Make sure to pull the model first: ollama pull gemma4
 
-    This demo tests if minimax is properly installed and responsive.
-    Flow: Question → Prompt → Minimax Model → String Parser → Result
+    Flow: Question → Prompt → Gemma4 Model → String Parser → Result
     """
 
     try:
-        # Initialize minimax model from Ollama
-        minimax_model = init_chat_model(
-            model="minimax",
+        gemma4_model = init_chat_model(
+            model="gemma4",
             model_provider="ollama"
         )
 
@@ -190,16 +188,16 @@ def demo_minimax_test():
         )
 
         output_parser = StrOutputParser()
-        chain = prompt_template | minimax_model | output_parser
+        chain = prompt_template | gemma4_model | output_parser
 
-        print("Testing minimax model...\n")
+        print("Testing gemma4 model...\n")
         result = chain.invoke({"question": "What is the difference between AI and machine learning?"})
 
-        print(f"Minimax Response: {result}\n")
+        print(f"Gemma4 Response: {result}\n")
 
     except Exception as e:
-        print(f"⚠️  Error with minimax model: {type(e).__name__}: {e}\n")
-        print("   Make sure minimax is pulled: ollama pull minimax\n")
+        print(f"⚠️  Error with gemma4 model: {type(e).__name__}: {e}\n")
+        print("   Make sure gemma4 is pulled: ollama pull gemma4\n")
 
 
 def demo_streaming_chain():
@@ -339,7 +337,7 @@ def main():
         "3": ("Schema Chain Demo (Structured JSON Output)", demo_schema_chain),
         "4": ("Streaming Chain Demo (Real-time Output)", demo_streaming_chain),
         "5": ("Marketing Tagline Generator (Practical Use Case)", demo_marketing_tagline_generator),
-        "6": ("Minimax Model Test (Ollama)", demo_minimax_test),
+        "6": ("Gemma4 Model Test (Ollama)", demo_gemma4_test),
         "7": ("Run All Demos", None),
     }
 
