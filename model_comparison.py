@@ -59,7 +59,7 @@ MODELS = [
 TEST_INPUT = {
     "input_language": "English",
     "output_language": "Bangla",
-    "text": "I love my son.",
+    "text": "I love my Bangladesh.",
 }
 
 # Translation prompt template
@@ -119,7 +119,7 @@ def run_model_test(model_config: dict) -> dict:
         print(f"Response: {response}")
         print(f"Time taken: {response_time:.2f} seconds")
         print(f"Temperature: {model_config['temperature']}")
-        print(f"Status: ✓ Success")
+        print("Status: ✓ Success")
 
         return {
             "response": response,
@@ -129,7 +129,7 @@ def run_model_test(model_config: dict) -> dict:
         }
 
     except RetryError as e:
-        print(f"Status: ✗ Failed after 3 retry attempts")
+        print(f"Status: {model_name} Failed after 3 retry attempts")
         print(f"Last error: {str(e.last_attempt.exception)}")
         return {
             "response": None,
@@ -138,7 +138,8 @@ def run_model_test(model_config: dict) -> dict:
             "attempts": 3,
         }
     except Exception as e:
-        print(f"Status: ✗ Error: {str(e)}")
+        print(f"Status: {model_name} Error")
+        print(f"Error details: {str(e)}")
         return {
             "response": None,
             "time": None,
