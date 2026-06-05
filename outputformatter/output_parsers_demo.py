@@ -32,17 +32,18 @@ def demo_str_parser(model_config: dict) -> None:
     print(f"\n{'='*60}")
     print(f"Demo 1 — StrOutputParser  ({model_config['name']})")
     print("="*60)
-    print("Chain: prompt | llm | StrOutputParser()\n"
-          "Returns the model response as a plain Python str.\n")
+    print("The simplest parser — returns the model's response as a plain string.\n"
+          "Use this when you just need the raw text with no transformation.\n")
 
+    topic = input("Topic [software engineer]: ").strip() or "software engineer"
     prompt = ChatPromptTemplate.from_messages([
         ("system", "You are a concise technical advisor."),
-        ("human", "What makes a great software engineer? Give exactly 3 bullet points."),
+        ("human", "What makes a great {topic}? Give exactly 3 bullet points."),
     ])
     parser = StrOutputParser()
     chain = prompt | create_model(model_config) | parser
 
-    result = chain.invoke({})
+    result = chain.invoke({"topic": topic})
     print(f"Type  : {type(result).__name__}")
     print(f"Output:\n{result}")
 
@@ -51,16 +52,17 @@ def demo_json_parser(model_config: dict) -> None:
     print(f"\n{'='*60}")
     print(f"Demo 2 — JsonOutputParser  ({model_config['name']})")
     print("="*60)
-    print("Chain: prompt | llm | JsonOutputParser()\n"
-          "Parses the model response into a Python dict (no schema enforced).\n")
+    print("Instructs the model to respond with JSON, then parses it into a Python dict.\n"
+          "No schema is enforced — any valid JSON the model returns is accepted.\n")
 
+    person = input("Person [Marie Curie]: ").strip() or "Marie Curie"
     prompt = ChatPromptTemplate.from_template(
         "Return a JSON object with 'name', 'age', and 'occupation' for: {description}"
     )
     parser = JsonOutputParser()
     chain = prompt | create_model(model_config) | parser
 
-    result = chain.invoke({"description": "Marie Curie"})
+    result = chain.invoke({"description": person})
     print(f"Type  : {type(result).__name__}")
     print(f"Output: {result}")
     print(f"  name={result.get('name')}, age={result.get('age')}, "
@@ -71,9 +73,11 @@ def demo_pydantic_parser(model_config: dict) -> None:
     print(f"\n{'='*60}")
     print(f"Demo 3 — PydanticOutputParser  ({model_config['name']})")
     print("="*60)
-    print("Chain: prompt | llm | PydanticOutputParser(pydantic_object=Person)\n"
-          "Injects format instructions via .partial(), validates into a Person object.\n")
+    print("Validates the model's JSON output against a Pydantic schema (Person).\n"
+          "The parser auto-generates instructions that get injected into the prompt,\n"
+          "so the model knows exactly which fields to return and in what format.\n")
 
+    person = input("Person [Albert Einstein]: ").strip() or "Albert Einstein"
     parser = PydanticOutputParser(pydantic_object=Person)
     prompt = ChatPromptTemplate.from_template(
         "Return a JSON object with 'name', 'age', and 'occupation' for: {description}\n\n"
@@ -81,7 +85,7 @@ def demo_pydantic_parser(model_config: dict) -> None:
     ).partial(format_instructions=parser.get_format_instructions())
     chain = prompt | create_model(model_config) | parser
 
-    result = chain.invoke({"description": "Albert Einstein"})
+    result = chain.invoke({"description": person})
     print(f"Type  : {type(result).__name__}")
     print(f"Output: {result}")
     print(f"  name={result.name}, age={result.age}, occupation={result.occupation}")
@@ -91,13 +95,15 @@ def demo_structured_output(model_config: dict) -> None:
     print(f"\n{'='*60}")
     print(f"Demo 4 — with_structured_output  ({model_config['name']})")
     print("="*60)
-    print("structured_model = llm.with_structured_output(MovieReview)\n"
-          "No parser in the chain — schema is bound to the model itself.\n")
+    print("Binds a schema (MovieReview) directly to the model at the API level.\n"
+          "No parser is needed in the chain — the model is responsible for\n"
+          "returning structured data that matches the schema.\n")
 
     llm = create_model(model_config)
     structured_model = llm.with_structured_output(MovieReview)
 
-    result = structured_model.invoke("Give me a brief review of the movie Interstellar.")
+    movie = input("Movie name [Interstellar]: ").strip() or "Interstellar"
+    result = structured_model.invoke(f"Give me a brief review of the movie {movie}.")
     print(f"Type  : {type(result).__name__}")
     print(f"Output: {result}")
     print(f"  title={result.title}, rating={result.rating}/10")
