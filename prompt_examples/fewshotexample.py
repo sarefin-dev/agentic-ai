@@ -2,7 +2,7 @@
 
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from model_comparison import MODELS, create_model
+from common import MODELS, create_model
 
 
 # --------------------------------------------------------------------------- #

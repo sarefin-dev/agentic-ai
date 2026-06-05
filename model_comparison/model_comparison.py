@@ -2,67 +2,21 @@
 # Measures response time, handles retries, and prints a ranked summary table.
 # Requires: pip install tenacity langchain-groq
 
-import os
 import time
 from typing import Any
-from dotenv import load_dotenv
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain.chat_models import init_chat_model
 from tenacity import retry, stop_after_attempt, wait_exponential, RetryError
 
-load_dotenv()
+from common import MODELS, create_model
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-# Model registry - easily extensible, all configuration in one place
-MODELS = [
-    {
-        "name": "Groq (compound-mini)",
-        "model": "groq/compound-mini",
-        "provider": "groq",
-        "temperature": 0.3,
-        "max_tokens": 256,
-        "timeout": 10,
-        "enabled": True,
-    },
-    {
-        "name": "Ollama (gemma4)",
-        "model": "gemma4",
-        "provider": "ollama",
-        "temperature": 0.3,
-        "max_tokens": 256,
-        "timeout": 30,
-        "enabled": True,
-    },
-    {
-        "name": "Ollama (gemma4:e2b)",
-        "model": "gemma4:e2b",
-        "provider": "ollama",
-        "temperature": 0.3,
-        "max_tokens": 256,
-        "timeout": 30,
-        "enabled": True,
-    },
-    {
-        "name": "Ollama (qwen3:1.7b)",
-        "model": "qwen3:1.7b",
-        "provider": "ollama",
-        "temperature": 0.3,
-        "max_tokens": 256,
-        "timeout": 30,
-        "enabled": True,
-    },
-]
-
-# Test input for translation task
 TEST_INPUT = {
     "input_language": "English",
     "output_language": "Bangla",
     "text": "I love my Bangladesh.",
 }
 
-# Translation prompt template
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -76,20 +30,6 @@ prompt = ChatPromptTemplate.from_messages(
 output_parser = StrOutputParser()
 
 
-def create_model(config: dict) -> Any:
-    """Initialize a model using init_chat_model with configuration."""
-    kwargs = {
-        "model": config["model"],
-        "model_provider": config["provider"],
-        "temperature": config["temperature"],
-        "max_tokens": config["max_tokens"],
-    }
-    if config["provider"] == "groq":
-        kwargs["api_key"] = GROQ_API_KEY
-
-    return init_chat_model(**kwargs)
-
-
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -101,7 +41,6 @@ def invoke_chain(chain: Any, inputs: dict) -> str:
 
 
 def run_model_test(model_config: dict) -> dict:
-    """Test a single model and return results."""
     model_name = model_config["name"]
     print(f"\nTesting: {model_name}")
     print("-" * 80)
@@ -149,7 +88,6 @@ def run_model_test(model_config: dict) -> dict:
 
 
 def print_summary(results: dict) -> None:
-    """Print comparison summary table."""
     print("\n" + "=" * 80)
     print("COMPARISON SUMMARY")
     print("=" * 80)
@@ -186,7 +124,6 @@ def print_summary(results: dict) -> None:
 
 
 def main():
-    """Run the model comparison."""
     print("=" * 80)
     print("MODEL COMPARISON WITH RETRY & CONFIGURATION")
     print("=" * 80)

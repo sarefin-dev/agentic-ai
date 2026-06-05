@@ -91,9 +91,9 @@ def demo_gemma4_test():
         gemma4 = init_chat_model(model="gemma4", model_provider="ollama")
         chain = _create_chain(
             "You are a helpful assistant. Answer this question concisely.\n"
-            "Question: {question}"
+            "Question: {question}",
+            model=gemma4
         )
-        chain = chain.with_config(model=gemma4)
         print("Testing gemma4 model...\n")
         result = chain.invoke({"question": "What is the difference between AI and machine learning?"})
         print(f"Gemma4 Response: {result}\n")
@@ -238,6 +238,11 @@ def main():
                 print(f"Error: {e}\n")
         else:
             print("❌ Invalid choice. Please enter 0-7.")
+
+
+if __name__ == "__main__":
+    main()
+7.")
 
 
 if __name__ == "__main__":
